@@ -1,12 +1,13 @@
 {
-  "name": "whats-sender-admin",
+  "name": "whats-sender-pro-admin",
   "private": true,
-  "version": "0.2.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "check": "node scripts/static-check.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.111.0",
