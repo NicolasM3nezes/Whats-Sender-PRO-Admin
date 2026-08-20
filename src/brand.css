@@ -1,25 +1,73 @@
 .brand {
-  gap: 0;
+  gap: 12px;
 }
 
 .brand img {
-  content: url('/sender-pro-logo.png') !important;
-  width: 210px !important;
-  height: auto !important;
-  max-height: 72px;
+  content: url('/sender-pro-icon.png') !important;
+  width: 56px !important;
+  height: 56px !important;
+  max-height: 56px;
   object-fit: contain !important;
-  object-position: left center;
+  object-position: center;
   flex: 0 0 auto;
-  filter: drop-shadow(0 8px 18px rgba(40, 220, 45, .12)) !important;
+  filter: drop-shadow(0 7px 16px rgba(37, 211, 102, .18)) !important;
 }
 
 .brand.compact img {
-  width: 178px !important;
-  max-height: 58px;
+  width: 46px !important;
+  height: 46px !important;
+  max-height: 46px;
 }
 
 .brand-copy {
+  display: flex !important;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+/* O nome fica em texto nativo para ter contraste perfeito no tema escuro. */
+.brand-copy strong {
+  display: block;
+  font-size: 0 !important;
+  line-height: 1.05;
+  white-space: nowrap;
+}
+
+.brand-copy strong span {
   display: none !important;
+}
+
+.brand-copy strong::before {
+  content: 'Sender';
+  color: #F7FAFC;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -.03em;
+}
+
+.brand-copy strong::after {
+  content: ' Pro';
+  color: #25D366;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -.03em;
+}
+
+.brand.compact .brand-copy strong::before,
+.brand.compact .brand-copy strong::after {
+  font-size: 16px;
+}
+
+.brand-copy > span {
+  font-size: 0 !important;
+  color: #7F8B98;
+}
+
+.brand-copy > span::after {
+  content: 'Administração';
+  font-size: 11px;
+  letter-spacing: .02em;
 }
 
 .login-card > .brand {
@@ -28,7 +76,7 @@
 }
 
 .sidebar > .brand {
-  align-items: flex-start;
+  align-items: center;
   padding: 1px 7px 24px;
 }
 
