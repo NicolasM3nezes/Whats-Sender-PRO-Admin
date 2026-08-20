@@ -13,6 +13,7 @@ import AuditPage from './pages/AuditPage'
 import OperationsPage from './pages/OperationsPage'
 import SystemPage from './pages/SystemPage'
 import AccountPage from './pages/AccountPage'
+import DownloadPage from './pages/DownloadPage'
 
 class ErrorBoundary extends React.Component {
   constructor(props) { super(props); this.state = { error: null } }
@@ -105,6 +106,7 @@ export default function App() {
     else if (session === null) setMe(null)
   }, [session?.access_token])
 
+  if (path === '/download') return <DownloadPage />
   if (path === '/forgot-password') return <ForgotPasswordPage navigate={navigate} />
   if (path === '/reset-password') return <ResetPasswordPage session={session} navigate={navigate} />
   if (path === '/accept-invite') return <AcceptInvitePage session={session} navigate={navigate} />
