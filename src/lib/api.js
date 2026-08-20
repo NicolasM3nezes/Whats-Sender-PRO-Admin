@@ -34,6 +34,7 @@ export const adminApi = (action, payload = {}) => invoke('admin-api', action, pa
 export const adminManagement = (action, payload = {}) => invoke('admin-management', action, payload)
 export const adminConsole = (action, payload = {}) => invoke('admin-console', action, payload)
 export const releaseConsole = (action, payload = {}) => invoke('release-console', action, payload)
+export const operationsConsole = (action, payload = {}) => invoke('operations-console', action, payload)
 
 async function invokeRaw(functionName, body = {}) {
   const { data, error } = await supabase.functions.invoke(functionName, { body })
