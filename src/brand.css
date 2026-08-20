@@ -1,0 +1,39 @@
+.brand {
+  gap: 0;
+}
+
+.brand img {
+  content: url('/sender-pro-logo.png') !important;
+  width: 210px !important;
+  height: auto !important;
+  max-height: 72px;
+  object-fit: contain !important;
+  object-position: left center;
+  flex: 0 0 auto;
+  filter: drop-shadow(0 8px 18px rgba(40, 220, 45, .12)) !important;
+}
+
+.brand.compact img {
+  width: 178px !important;
+  max-height: 58px;
+}
+
+.brand-copy {
+  display: none !important;
+}
+
+.login-card > .brand {
+  justify-content: center;
+  margin-bottom: 26px;
+}
+
+.sidebar > .brand {
+  align-items: flex-start;
+  padding: 1px 7px 24px;
+}
+
+@media (max-width: 850px) {
+  .sidebar > .brand {
+    justify-content: center;
+  }
+}
