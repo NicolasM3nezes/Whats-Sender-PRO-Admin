@@ -10,6 +10,7 @@ import NewCompanyPage from './pages/NewCompanyPage'
 import CompanyPage from './pages/CompanyPage'
 import AdminsPage from './pages/AdminsPage'
 import AuditPage from './pages/AuditPage'
+import OperationsPage from './pages/OperationsPage'
 import SystemPage from './pages/SystemPage'
 import AccountPage from './pages/AccountPage'
 
@@ -34,6 +35,7 @@ function Sidebar({ me, path, navigate, session }) {
     { path: '/', label: 'Visão geral', icon: '▦', show: true },
     { path: '/companies', label: 'Empresas', icon: '▤', show: true, prefix: '/companies' },
     { path: '/companies/new', label: 'Nova empresa', icon: '+', show: ['owner', 'admin', 'finance'].includes(me.role) },
+    { path: '/operations', label: 'Operação', icon: '◉', show: ['owner', 'admin', 'support'].includes(me.role) },
     { path: '/admins', label: 'Administradores', icon: '♙', show: me.role === 'owner' },
     { path: '/audit', label: 'Auditoria', icon: '◎', show: ['owner', 'admin'].includes(me.role) },
     { path: '/system', label: 'Sistema', icon: '⚙', show: me.role === 'owner' },
@@ -67,6 +69,7 @@ function Sidebar({ me, path, navigate, session }) {
 
 function ProtectedApp({ session, me, refreshMe, path, navigate }) {
   const newCompanyAllowed = ['owner', 'admin', 'finance'].includes(me.role)
+  const operationsAllowed = ['owner', 'admin', 'support'].includes(me.role)
   const auditAllowed = ['owner', 'admin'].includes(me.role)
   const systemAllowed = me.role === 'owner'
 
@@ -75,6 +78,7 @@ function ProtectedApp({ session, me, refreshMe, path, navigate }) {
   else if (path === '/companies') page = <CompaniesPage navigate={navigate} />
   else if (path === '/companies/new') page = newCompanyAllowed ? <NewCompanyPage navigate={navigate} /> : <Unauthorized navigate={navigate} />
   else if (/^\/companies\/[^/]+$/.test(path)) page = <CompanyPage id={path.split('/')[2]} navigate={navigate} me={me} />
+  else if (path === '/operations') page = operationsAllowed ? <OperationsPage /> : <Unauthorized navigate={navigate} />
   else if (path === '/admins') page = me.role === 'owner' ? <AdminsPage /> : <Unauthorized navigate={navigate} />
   else if (path === '/audit') page = auditAllowed ? <AuditPage /> : <Unauthorized navigate={navigate} />
   else if (path === '/system') page = systemAllowed ? <SystemPage me={me} /> : <Unauthorized navigate={navigate} />
@@ -129,8 +133,6 @@ export default function App() {
     if (session) refreshMe()
     else if (session === null) setMe(null)
   }, [session?.access_token])
-
-  const publicRoute = ['/forgot-password', '/reset-password', '/accept-invite'].includes(path)
 
   if (path === '/forgot-password') return <ForgotPasswordPage navigate={navigate} />
   if (path === '/reset-password') return <ResetPasswordPage session={session} navigate={navigate} />
