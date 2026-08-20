@@ -36,7 +36,7 @@ function Sidebar({ me, path, navigate, session }) {
     { path: '/companies/new', label: 'Nova empresa', icon: '+', show: ['owner', 'admin', 'finance'].includes(me.role) },
     { path: '/admins', label: 'Administradores', icon: '♙', show: me.role === 'owner' },
     { path: '/audit', label: 'Auditoria', icon: '◎', show: ['owner', 'admin'].includes(me.role) },
-    { path: '/system', label: 'Sistema', icon: '⚙', show: ['owner', 'admin'].includes(me.role) },
+    { path: '/system', label: 'Sistema', icon: '⚙', show: me.role === 'owner' },
   ]
 
   function active(item) {
@@ -68,7 +68,7 @@ function Sidebar({ me, path, navigate, session }) {
 function ProtectedApp({ session, me, refreshMe, path, navigate }) {
   const newCompanyAllowed = ['owner', 'admin', 'finance'].includes(me.role)
   const auditAllowed = ['owner', 'admin'].includes(me.role)
-  const systemAllowed = ['owner', 'admin'].includes(me.role)
+  const systemAllowed = me.role === 'owner'
 
   let page
   if (path === '/') page = <DashboardPage navigate={navigate} me={me} />
