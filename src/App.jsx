@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { supabase } from './lib/supabase'
 import { adminConsole } from './lib/api'
 import { usePathname } from './lib/router'
@@ -19,9 +19,7 @@ class ErrorBoundary extends React.Component {
   static getDerivedStateFromError(error) { return { error } }
   componentDidCatch(error, info) { console.error('Admin UI error', error, info) }
   render() {
-    if (this.state.error) {
-      return <main className="fatal-page"><section className="fatal-card"><div className="brand-mark">WS</div><h1>Algo saiu do esperado</h1><p>{this.state.error.message || 'Erro inesperado.'}</p><button className="primary" onClick={() => window.location.reload()}>Recarregar painel</button></section></main>
-    }
+    if (this.state.error) return <main className="fatal-page"><section className="fatal-card"><div className="brand-mark">WS</div><h1>Algo saiu do esperado</h1><p>{this.state.error.message || 'Erro inesperado.'}</p><button className="primary" onClick={() => window.location.reload()}>Recarregar painel</button></section></main>
     return this.props.children
   }
 }
@@ -30,41 +28,30 @@ function Unauthorized({ navigate }) {
   return <div className="state error-state"><strong>Acesso não permitido</strong><span>Seu perfil não possui permissão para esta área.</span><button className="secondary" onClick={() => navigate('/')}>Voltar ao início</button></div>
 }
 
-function Sidebar({ me, path, navigate, session }) {
+function Sidebar({ me, path, navigate }) {
   const items = [
     { path: '/', label: 'Visão geral', icon: '▦', show: true },
-    { path: '/companies', label: 'Empresas', icon: '▤', show: true, prefix: '/companies' },
+    { path: '/companies', label: 'Empresas', icon: '▤', show: true },
     { path: '/companies/new', label: 'Nova empresa', icon: '+', show: ['owner', 'admin', 'finance'].includes(me.role) },
     { path: '/operations', label: 'Operação', icon: '◉', show: ['owner', 'admin', 'support'].includes(me.role) },
     { path: '/admins', label: 'Administradores', icon: '♙', show: me.role === 'owner' },
     { path: '/audit', label: 'Auditoria', icon: '◎', show: ['owner', 'admin'].includes(me.role) },
     { path: '/system', label: 'Sistema', icon: '⚙', show: me.role === 'owner' },
   ]
-
   function active(item) {
     if (item.path === '/') return path === '/'
     if (item.path === '/companies') return path === '/companies' || /^\/companies\/[^/]+$/.test(path)
     return path === item.path
   }
-
-  return (
-    <aside className="sidebar">
-      <Brand compact />
-      <nav>
-        {items.filter(i => i.show).map(item => (
-          <button key={item.path} className={active(item) ? 'active' : ''} onClick={() => navigate(item.path)}><span className="nav-icon">{item.icon}</span>{item.label}</button>
-        ))}
-      </nav>
-      <div className="sidebar-foot">
-        <button className={`account-mini ${path === '/account' ? 'active' : ''}`} onClick={() => navigate('/account')}>
-          <span className="avatar-mini">{(me.name || me.email || 'A').slice(0, 1).toUpperCase()}</span>
-          <span className="account-mini-copy"><strong>{me.name || me.email}</strong><small>{me.email}</small></span>
-        </button>
-        <div className="sidebar-role"><RoleBadge role={me.role} /></div>
-        <button className="sidebar-logout" onClick={() => supabase.auth.signOut({ scope: 'local' })}>Sair</button>
-      </div>
-    </aside>
-  )
+  return <aside className="sidebar">
+    <Brand compact />
+    <nav>{items.filter(i => i.show).map(item => <button key={item.path} className={active(item) ? 'active' : ''} onClick={() => navigate(item.path)}><span className="nav-icon">{item.icon}</span>{item.label}</button>)}</nav>
+    <div className="sidebar-foot">
+      <button className={`account-mini ${path === '/account' ? 'active' : ''}`} onClick={() => navigate('/account')}><span className="avatar-mini">{(me.name || me.email || 'A').slice(0, 1).toUpperCase()}</span><span className="account-mini-copy"><strong>{me.name || me.email}</strong><small>{me.email}</small></span></button>
+      <div className="sidebar-role"><RoleBadge role={me.role} /></div>
+      <button className="sidebar-logout" onClick={() => supabase.auth.signOut({ scope: 'local' })}>Sair</button>
+    </div>
+  </aside>
 }
 
 function ProtectedApp({ session, me, refreshMe, path, navigate }) {
@@ -75,7 +62,7 @@ function ProtectedApp({ session, me, refreshMe, path, navigate }) {
 
   let page
   if (path === '/') page = <DashboardPage navigate={navigate} me={me} />
-  else if (path === '/companies') page = <CompaniesPage navigate={navigate} />
+  else if (path === '/companies') page = <CompaniesPage navigate={navigate} me={me} />
   else if (path === '/companies/new') page = newCompanyAllowed ? <NewCompanyPage navigate={navigate} /> : <Unauthorized navigate={navigate} />
   else if (/^\/companies\/[^/]+$/.test(path)) page = <CompanyPage id={path.split('/')[2]} navigate={navigate} me={me} />
   else if (path === '/operations') page = operationsAllowed ? <OperationsPage /> : <Unauthorized navigate={navigate} />
@@ -85,12 +72,7 @@ function ProtectedApp({ session, me, refreshMe, path, navigate }) {
   else if (path === '/account') page = <AccountPage me={me} onMeChanged={refreshMe} navigate={navigate} />
   else page = <div className="state"><strong>Página não encontrada</strong><button className="secondary" onClick={() => navigate('/')}>Ir para o início</button></div>
 
-  return (
-    <div className="app-shell">
-      <Sidebar me={me} path={path} navigate={navigate} session={session} />
-      <main className="content">{page}</main>
-    </div>
-  )
+  return <div className="app-shell"><Sidebar me={me} path={path} navigate={navigate} session={session} /><main className="content">{page}</main></div>
 }
 
 export default function App() {
@@ -101,31 +83,20 @@ export default function App() {
 
   async function refreshMe() {
     if (!session) return
-    try {
-      const data = await adminConsole('me')
-      setMe(data)
-      setAccessError('')
-    } catch (e) {
-      setMe(null)
-      setAccessError(e.message)
-    }
+    try { const data = await adminConsole('me'); setMe(data); setAccessError('') }
+    catch (e) { setMe(null); setAccessError(e.message) }
   }
 
   useEffect(() => {
     const authUrl = `${window.location.search}${window.location.hash}`
     if (authUrl.includes('type=recovery')) navigate('/reset-password', { replace: true })
     if (authUrl.includes('type=invite')) navigate('/accept-invite', { replace: true })
-
     let mounted = true
-    supabase.auth.getSession().then(({ data }) => {
-      if (mounted) setSession(data.session)
-    })
-
+    supabase.auth.getSession().then(({ data }) => { if (mounted) setSession(data.session) })
     const { data } = supabase.auth.onAuthStateChange((event, nextSession) => {
       setSession(nextSession)
       if (event === 'PASSWORD_RECOVERY') navigate('/reset-password', { replace: true })
     })
-
     return () => { mounted = false; data.subscription.unsubscribe() }
   }, [])
 
@@ -137,25 +108,11 @@ export default function App() {
   if (path === '/forgot-password') return <ForgotPasswordPage navigate={navigate} />
   if (path === '/reset-password') return <ResetPasswordPage session={session} navigate={navigate} />
   if (path === '/accept-invite') return <AcceptInvitePage session={session} navigate={navigate} />
-
   if (session === undefined) return <Loading label="Iniciando painel…" />
   if (!session) return <LoginPage navigate={navigate} />
   if (me === undefined) return <Loading label="Validando permissões…" />
 
-  if (!me) {
-    return (
-      <main className="login-page">
-        <section className="login-card">
-          <Brand />
-          <div className="eyebrow">ACESSO NEGADO</div>
-          <h1>Conta sem permissão</h1>
-          <p className="muted">A autenticação funcionou, mas esta conta não está ativa como administradora do sistema.</p>
-          {accessError && <div className="alert error">{accessError}</div>}
-          <button className="secondary full" onClick={() => supabase.auth.signOut({ scope: 'local' })}>Sair desta conta</button>
-        </section>
-      </main>
-    )
-  }
+  if (!me) return <main className="login-page"><section className="login-card"><Brand /><div className="eyebrow">ACESSO NEGADO</div><h1>Conta sem permissão</h1><p className="muted">A autenticação funcionou, mas esta conta não está ativa como administradora do sistema.</p>{accessError && <div className="alert error">{accessError}</div>}<button className="secondary full" onClick={() => supabase.auth.signOut({ scope: 'local' })}>Sair desta conta</button></section></main>
 
   return <ProtectedApp session={session} me={me} refreshMe={refreshMe} path={path} navigate={navigate} />
 }
